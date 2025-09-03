@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -16,6 +17,9 @@ def read_religion(name: str):
     return {"religion": name, "status": "content loading soon"}
 
 
+# -------------------
+# Projects CRUD
+# -------------------
 
 projects = []
 
@@ -25,21 +29,21 @@ class Project(BaseModel):
     description: str
     status: str
 
-@app.get("/projects")
+@app.get("/projects", response_model=list[Project])
 def get_projects():
     return projects
 
 @app.post("/projects")
 def create_project(project: Project):
     projects.append(project.dict())
-    return {"message": "Project created", "project": project}
+    return {"message": "Project created", "project": project.dict()}
 
 @app.put("/projects/{project_id}")
 def update_project(project_id: int, updated: Project):
     for i, proj in enumerate(projects):
         if proj["id"] == project_id:
             projects[i] = updated.dict()
-            return {"message": "Project updated", "project": updated}
+            return {"message": "Project updated", "project": updated.dict()}
     raise HTTPException(status_code=404, detail="Project not found")
 
 @app.delete("/projects/{project_id}")
@@ -49,3 +53,4 @@ def delete_project(project_id: int):
             projects.pop(i)
             return {"message": "Project deleted"}
     raise HTTPException(status_code=404, detail="Project not found")
+
